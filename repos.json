@@ -3,7 +3,8 @@
       "name": "RMX2195-Sky",
       "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
       "branch": "Stable-v0.4-old",
-      "device": "RMX2195"
+      "device": "RMX2195",
+      "defconfig": "RMX2195_defconfig"
     },
     "anykernelSource": {
         "repo": "https://github.com/insetion/AnyKernel3",
