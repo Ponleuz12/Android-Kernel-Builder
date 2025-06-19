@@ -27,19 +27,19 @@
     ],
     "params": {
       "ARCH": "arm64",
-      "CC": "proton-clang/clang",
-      "CROSS_COMPILE": "proton-clang/aarch64-linux-gnu-",
-      "CROSS_COMPILE_ARM32": "proton-clang/arm-linux-gnueabi-",
-      "CROSS_COMPILE_COMPAT": "proton-clang/arm-linux-gnueabi-",
+      "CC": "proton-clang/bin/clang",
+      "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
+      "CROSS_COMPILE_ARM32": "proton-clang/bin/arm-linux-gnueabi-",
+      "CROSS_COMPILE_COMPAT": "proton-clang/bin/arm-linux-gnueabi-",
       "CLANG_TRIPLE": "aarch64-linux-gnu-",
-      "AR": "proton-clang/llvm-ar",
-      "LD": "proton-clang/ld.lld",
-      "NM": "proton-clang/llvm-nm",
-      "OBJCOPY": "proton-clang/llvm-objcopy",
-      "OBJDUMP": "proton-clang/llvm-objdump",
-      "READELF": "proton-clang/llvm-readelf",
-      "OBJSIZE": "proton-clang/llvm-size",
-      "STRIP": "proton-clang/llvm-strip"
+      "AR": "proton-clang/bin/llvm-ar",
+      "LD": "proton-clang/bin/ld.lld",
+      "NM": "proton-clang/bin/llvm-nm",
+      "OBJCOPY": "proton-clang/bin/llvm-objcopy",
+      "OBJDUMP": "proton-clang/bin/llvm-objdump",
+      "READELF": "proton-clang/bin/llvm-readelf",
+      "OBJSIZE": "proton-clang/bin/llvm-size",
+      "STRIP": "proton-clang/bin/llvm-strip"
     }
   }
 ]
