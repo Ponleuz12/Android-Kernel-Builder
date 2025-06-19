@@ -2,7 +2,7 @@
     "kernelSource": {
       "name": "RMX2195-Sky",
       "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
-      "branch": "Stable",
+      "branch": "Stable-V4.0-old",
       "device": "RMX2195",
       "defconfig": "RMX2195_defconfig"
     },
