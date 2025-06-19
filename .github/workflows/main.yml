@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
       - name: "📥 Clone Kernel Source"
         run: |
-         git clone --depth=1 stable https://github.com/Ponleuz12/kernel_realme_sm4250
+         git clone --depth=1 --branch stable https://github.com/Ponleuz12/kernel_realme_sm4250.git
 
       - name: "🧰 Install Dependencies"
         run: |
