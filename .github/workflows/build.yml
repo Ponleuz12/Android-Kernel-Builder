@@ -81,6 +81,9 @@ jobs:
       - name: "📦 Set up Proton Clang"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
+          echo "✅ Removing existing proton-clang (if any)..."
+          rm -rf proton-clang
+
           echo "✅ Cloning Proton Clang..."
           git clone --depth=1 https://github.com/kdrag0n/proton-clang proton-clang
 
