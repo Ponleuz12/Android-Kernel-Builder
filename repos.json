@@ -22,7 +22,7 @@
         "repo": "https://github.com/kdrag0n/proton-clang",
         "branch": "master",
         "name": "Proton-clang"
-        "binPath": ["bin"]
+        "binPath": "bin"
       }
     ],
     "params": {
