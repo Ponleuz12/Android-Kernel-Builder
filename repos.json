@@ -1,4 +1,5 @@
-[  {
+[[
+  {
     "kernelSource": {
       "name": "RMX2195",
       "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
@@ -6,9 +7,9 @@
       "device": "RMX2195"
     },
     "anykernelSource": {
-        "repo": "https://github.com/insetion/AnyKernel3",
-        "branch": "RMX2195",
-        "name": "AnyKernel3-X"
+      "repo": "https://github.com/insetion/AnyKernel3",
+      "branch": "RMX2195",
+      "name": "AnyKernel3-X"
     },
     "withKernelSU": false,
     "toolchains": [
@@ -20,24 +21,25 @@
       {
         "repo": "https://github.com/kdrag0n/proton-clang",
         "branch": "master",
-        "name": "Proton-clang"
+        "name": "proton-clang",
+        "binPath": ["bin"]
       }
     ],
     "params": {
-    "ARCH": "arm64",
-  "CC": "proton-clang/bin/clang",
-  "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
-  "CROSS_COMPILE_ARM32": "proton-clang/bin/arm-linux-gnueabi-",
-  "CROSS_COMPILE_COMPAT": "proton-clang/bin/arm-linux-gnueabi-",
-  "CLANG_TRIPLE": "aarch64-linux-gnu-",
-  "AR": "proton-clang/bin/llvm-ar",
-  "LD": "proton-clang/bin/ld.lld",
-  "NM": "proton-clang/bin/llvm-nm",
-  "OBJCOPY": "proton-clang/bin/llvm-objcopy",
-  "OBJDUMP": "proton-clang/bin/llvm-objdump",
-  "READELF": "proton-clang/bin/llvm-readelf",
-  "OBJSIZE": "proton-clang/bin/llvm-size",
-  "STRIP": "proton-clang/bin/llvm-strip"
+      "ARCH": "arm64",
+      "CC": "proton-clang/bin/clang",
+      "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
+      "CROSS_COMPILE_ARM32": "proton-clang/bin/arm-linux-gnueabi-",
+      "CROSS_COMPILE_COMPAT": "proton-clang/bin/arm-linux-gnueabi-",
+      "CLANG_TRIPLE": "aarch64-linux-gnu-",
+      "AR": "proton-clang/bin/llvm-ar",
+      "LD": "proton-clang/bin/ld.lld",
+      "NM": "proton-clang/bin/llvm-nm",
+      "OBJCOPY": "proton-clang/bin/llvm-objcopy",
+      "OBJDUMP": "proton-clang/bin/llvm-objdump",
+      "READELF": "proton-clang/bin/llvm-readelf",
+      "OBJSIZE": "proton-clang/bin/llvm-size",
+      "STRIP": "proton-clang/bin/llvm-strip"
     }
   }
 ]
