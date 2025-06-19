@@ -35,7 +35,12 @@ jobs:
           export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
           # Clean and configure
-          make O=out ARCH=arm64 RMX2195_defconfig
+          make O=out ARCH=arm64 menuconfig
+          make O=out ARCH=arm64 savedefconfig
+          cp out/defconfig arch/arm64/configs/RMX2195_defconfig
+          git add arch/arm64/configs/RMX2195_defconfig
+          git commit -m "Add RMX2195_defconfig"
+          git push
 
           # Build with Clang
           make -j$(nproc --all) \
