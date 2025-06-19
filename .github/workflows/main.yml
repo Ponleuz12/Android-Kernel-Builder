@@ -78,11 +78,11 @@ jobs:
           done
           echo "PATH Variable: $PATH"
 
-    - name: "📦 Set up Proton Clang"   
-      working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
-     run: | 
-      echo "✅ Cloning Proton Clang..."
-      git clone --depth=1 https://github.com/kdrag0n/proton-clang proton-clang
+      - name: "📦 Set up Proton Clang"   
+        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
+        run: | 
+           echo "✅ Cloning Proton Clang..."
+           git clone --depth=1 https://github.com/kdrag0n/proton-clang proton-clang
 
             echo "✅ Setting permissions..."
             chmod +x proton-clang/bin/clang
@@ -94,7 +94,7 @@ jobs:
             echo "ARCH=arm64" >> $GITHUB_ENV
 
          echo "✅ Clang version:"
-        ./proton-clang/bin/clang --version
+          ./proton-clang/bin/clang --version
 
       - name: "😎 Set args"
         id: generate-args
