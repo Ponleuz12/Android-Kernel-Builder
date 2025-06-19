@@ -22,23 +22,24 @@
         "repo": "https://github.com/kdrag0n/proton-clang",
         "branch": "master",
         "name": "proton-clang",
-        "binPath": ["bin"]
+        "binPath": [""]
       }
     ],
     "params": {
+      "ARCH": "arm64",
       "CC": "proton-clang/clang",
-"CROSS_COMPILE": "proton-clang/aarch64-linux-gnu-",
-"CROSS_COMPILE_ARM32": "proton-clang/arm-linux-gnueabi-",
-"CROSS_COMPILE_COMPAT": "proton-clang/arm-linux-gnueabi-",
-"CLANG_TRIPLE": "aarch64-linux-gnu-",
-"AR": "proton-clang/llvm-ar",
-"LD": "proton-clang/ld.lld",
-"NM": "proton-clang/llvm-nm",
-"OBJCOPY": "proton-clang/llvm-objcopy",
-"OBJDUMP": "proton-clang/llvm-objdump",
-"READELF": "proton-clang/llvm-readelf",
-"OBJSIZE": "proton-clang/llvm-size",
-"STRIP": "proton-clang/llvm-strip"
+      "CROSS_COMPILE": "proton-clang/aarch64-linux-gnu-",
+      "CROSS_COMPILE_ARM32": "proton-clang/arm-linux-gnueabi-",
+      "CROSS_COMPILE_COMPAT": "proton-clang/arm-linux-gnueabi-",
+      "CLANG_TRIPLE": "aarch64-linux-gnu-",
+      "AR": "proton-clang/llvm-ar",
+      "LD": "proton-clang/ld.lld",
+      "NM": "proton-clang/llvm-nm",
+      "OBJCOPY": "proton-clang/llvm-objcopy",
+      "OBJDUMP": "proton-clang/llvm-objdump",
+      "READELF": "proton-clang/llvm-readelf",
+      "OBJSIZE": "proton-clang/llvm-size",
+      "STRIP": "proton-clang/llvm-strip"
     }
   }
 ]
