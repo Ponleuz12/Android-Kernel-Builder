@@ -2,7 +2,7 @@
     "kernelSource": {
       "name": "RMX2195-Sky",
       "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
-      "branch": "Stable-v0.4-old",
+      "branch": "Stable",
       "device": "RMX2195",
       "defconfig": "RMX2195_defconfig"
     },
@@ -19,19 +19,27 @@
         "name": "gas"
       },
       {
-        "repo": "https://github.com/techyminati/android_prebuilts_clang_host_linux-x86_clang-6443078",
-        "branch": "11.0.1",
-        "name": "clang"
+        "repo": "https://github.com/kdrag0n/proton-clang",
+        "branch": "master",
+        "name": "Proton-clang"
+        "binPath": ["bin"]
       }
     ],
     "params": {
-      "ARCH": "arm64",
-      "CROSS_COMPILE": "aarch64-linux-gnu-",
-      "CROSS_COMPILE_ARM32": "arm-linux-gnueabi-",
-      "CROSS_COMPILE_COMPAT": "arm-linux-gnueabi-",
-      "CLANG_TRIPLE": "aarch64-linux-gnu-",
-      "AR": "",
-      "CC": "clang"
+    "ARCH": "arm64",
+  "CC": "proton-clang/bin/clang",
+  "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
+  "CROSS_COMPILE_ARM32": "proton-clang/bin/arm-linux-gnueabi-",
+  "CROSS_COMPILE_COMPAT": "proton-clang/bin/arm-linux-gnueabi-",
+  "CLANG_TRIPLE": "aarch64-linux-gnu-",
+  "AR": "proton-clang/bin/llvm-ar",
+  "LD": "proton-clang/bin/ld.lld",
+  "NM": "proton-clang/bin/llvm-nm",
+  "OBJCOPY": "proton-clang/bin/llvm-objcopy",
+  "OBJDUMP": "proton-clang/bin/llvm-objdump",
+  "READELF": "proton-clang/bin/llvm-readelf",
+  "OBJSIZE": "proton-clang/bin/llvm-size",
+  "STRIP": "proton-clang/bin/llvm-strip"
     }
   }
 ]
