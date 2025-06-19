@@ -40,8 +40,8 @@ jobs:
           echo "📂 Listing defconfigs..."
           ls arch/arm64/configs
 
-          echo "⚙️ Running stock_deconfig"
-          make O=out ARCH=arm64 stock_deconfig
+          echo "⚙️ Running stock_defconfig"
+          make O=out ARCH=arm64 stock_defconfig
 
           echo "🔨 Building kernel..."
           make -j$(nproc --all) \
