@@ -77,8 +77,7 @@ jobs:
           echo $toolchains_num
           for ((i=0;i<toolchains_num;i++)); do
             name=$(echo $toolchains | jq -r ".[$i].name")
-            repo=$(echo $toolchains | jq -r ".[$i].re
-            po")
+            repo=$(echo $toolchains | jq -r ".[$i].repo")
             branch=$(echo $toolchains | jq -r ".[$i].branch")
             git clone --recursive --branch $branch $repo $name --depth=1
             echo "$(pwd)/$name/" >> $GITHUB_PATH
@@ -86,72 +85,54 @@ jobs:
           done
 
           echo "PATH Variable: $PATH"
-      
-        - name: "😎 Set args"
-  id: generate-args
-  working-directory: ./${{ env.kernelDir }}
-  env:
-    params: "${{ toJSON(matrix.repos.params) }}"
-    THREAD: $(nproc --all)
-  run: |
-    echo "PATH Variable: $PATH"
 
-    ARCH=$(echo $params | jq -r ".ARCH")
-    CROSS_COMPILE=$(echo $params | jq -r ".CROSS_COMPILE")
-    CROSS_COMPILE_COMPAT=$(echo $params | jq -r ".CROSS_COMPILE_COMPAT")
-    CROSS_COMPILE_ARM32=$(echo $params | jq -r ".CROSS_COMPILE_ARM32")
-    CLANG_TRIPLE=$(echo $params | jq -r ".CLANG_TRIPLE")
-    AR=$(echo $params | jq -r ".AR")
-    CC=$(echo $params | jq -r ".CC")
+      - name: "😎 Set args"
+        id: generate-args
+        working-directory: ./${{ env.kernelDir }}
+        env:
+          params: "${{ toJSON(matrix.repos.params) }}"
+          THREAD: $(nproc --all)
+        run: |
+          echo "PATH Variable: $PATH"
+          ARCH=$(echo $params | jq -r ".ARCH")
+          CROSS_COMPILE=$(echo $params | jq -r ".CROSS_COMPILE")
+          CROSS_COMPILE_COMPAT=$(echo $params | jq -r ".CROSS_COMPILE_COMPAT")
+          CROSS_COMPILE_ARM32=$(echo $params | jq -r ".CROSS_COMPILE_ARM32")
+          CLANG_TRIPLE=$(echo $params | jq -r ".CLANG_TRIPLE")
+          AR=$(echo $params | jq -r ".AR")
+          CC=$(echo $params | jq -r ".CC")
+          LLVM=$(echo $params | jq -r ".LLVM")
 
-    # LTO / LLVM options
-    KBUILD_LTO=$(echo $params | jq -r ".KBUILD_LTO // empty")
-    LLVM=$(echo $params | jq -r ".LLVM // empty")
-    LLVM_IAS=$(echo $params | jq -r ".LLVM_IAS // empty")
+          echo "ARCH=$ARCH" >> $GITHUB_ENV
 
-    echo "ARCH=$ARCH" >> $GITHUB_ENV
+          args="-j$(nproc --all)"
+          if [ -n "${{ env.OUT_DIR }}" ]; then
+            mkdir -p $(pwd)/${{ env.OUT_DIR }}
+            args="$args O=$(pwd)/${{ env.OUT_DIR }}"
+          fi
+          if [ -n "$ARCH" ]; then
+            args="$args ARCH=$ARCH"
+          fi
+          if [ -n "$CROSS_COMPILE" ]; then
+            args="$args CROSS_COMPILE=$CROSS_COMPILE"
+          fi
+          if [ -n "$CLANG_TRIPLE" ]; then
+            args="$args CLANG_TRIPLE=$CLANG_TRIPLE"
+          fi
+          if [ -n "$CROSS_COMPILE_COMPAT" ]; then
+            args="$args CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT"
+          fi
+          if [ -n "$AR" ]; then
+            args="$args AR=$AR"
+          fi
+          if [ -n "$CC" ]; then
+            args="$args CC=$CC"
+          fi
+          if [ -n "$LLVM" ]; then
+          args="$args LLVM=$LLVM"
+          fi
+          echo "args=$args" >> $GITHUB_OUTPUT
 
-    args="-j$(nproc --all)"
-
-    if [ -n "${{ env.OUT_DIR }}" ]; then
-      mkdir -p "$(pwd)/${{ env.OUT_DIR }}"
-      args="$args O=$(pwd)/${{ env.OUT_DIR }}"
-    fi
-
-    if [ -n "$ARCH" ]; then
-      args="$args ARCH=$ARCH"
-    fi
-    if [ -n "$CROSS_COMPILE" ]; then
-      args="$args CROSS_COMPILE=$CROSS_COMPILE"
-    fi
-    if [ -n "$CLANG_TRIPLE" ]; then
-      args="$args CLANG_TRIPLE=$CLANG_TRIPLE"
-    fi
-    if [ -n "$CROSS_COMPILE_COMPAT" ]; then
-      args="$args CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT"
-    fi
-    if [ -n "$AR" ]; then
-      args="$args AR=$AR"
-    fi
-    if [ -n "$CC" ]; then
-      args="$args CC=$CC"
-    fi
-
-    # ThinLTO flags
-    if [ -n "$KBUILD_LTO" ]; then
-      args="$args KBUILD_LTO=$KBUILD_LTO"
-    fi
-    if [ -n "$LLVM" ]; then
-      args="$args LLVM=$LLVM"
-    fi
-    if [ -n "$LLVM_IAS" ]; then
-      args="$args LLVM_IAS=$LLVM_IAS"
-    fi
-
-    echo "args=$args"
-    echo "args=$args" >> $GITHUB_OUTPUT
-
-   
       - name: "😋 Update KernelSU"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         if: ${{ env.withKernelSU == 'true' }}
@@ -167,7 +148,7 @@ jobs:
 
           echo -e "\nCONFIG_KPROBES=y" >> ./arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
           echo -e "\nCONFIG_HAVE_KPROBES=y" >> ./arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-          echo -e "\nCONFIG_KPROBEEVENTS=y" >> ./arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "\nCONFIG_KPROBE_EVENTS=y" >> ./arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
 
           cat ./arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
 
