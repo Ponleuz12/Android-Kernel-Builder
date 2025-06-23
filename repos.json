@@ -1,45 +1,42 @@
-[
-  {
-    "kernelSource": {
-      "name": "RMX2195",
-      "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
-      "branch": "stable",
-      "device": "RMX2195"
-    },
-    "anykernelSource": {
-      "repo": "https://github.com/insetion/AnyKernel3",
-      "branch": "RMX2195",
-      "name": "AnyKernel3-X"
-    },
-    "withKernelSU": false,
-    "toolchains": [
-      {
-        "repo": "https://android.googlesource.com/platform/prebuilts/gas/linux-x86",
-        "branch": "master",
-        "name": "gas"
-      },
-      {
-        "repo": "https://github.com/kdrag0n/proton-clang",
-        "branch": "master",
-        "name": "proton-clang",
-        "binPath": [""]
-      }
-    ],
-    "params": {
-      "ARCH": "arm64",
-      "CC": "proton-clang/bin/clang",
-      "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
-      "CROSS_COMPILE_ARM32": "proton-clang/bin/arm-linux-gnueabi-",
-      "CROSS_COMPILE_COMPAT": "proton-clang/bin/arm-linux-gnueabi-",
-      "CLANG_TRIPLE": "aarch64-linux-gnu-",
-      "AR": "proton-clang/bin/llvm-ar",
-      "LD": "proton-clang/bin/ld.lld",
-      "NM": "proton-clang/bin/llvm-nm",
-      "OBJCOPY": "proton-clang/bin/llvm-objcopy",
-      "OBJDUMP": "proton-clang/bin/llvm-objdump",
-      "READELF": "proton-clang/bin/llvm-readelf",
-      "OBJSIZE": "proton-clang/bin/llvm-size",
-      "STRIP": "proton-clang/bin/llvm-strip"
+{
+  "kernelSource": {
+    "name": "RMX2195",
+    "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
+    "branch": "stable",
+    "device": "RMX2195"
+  },
+  "anykernelSource": {
+    "repo": "https://github.com/insetion/AnyKernel3",
+    "branch": "RMX2195",
+    "name": "AnyKernel3-X"
+  },
+  "withKernelSU": false,
+  "toolchains": [
+    {
+      "repo": "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86",
+      "branch": "master",
+      "name": "aosp-clang",
+      "binPath": ["clang-r450784d/bin"]
     }
+  ],
+  "params": {
+    "ARCH": "arm64",
+    "CC": "aosp-clang/clang-r450784d/bin/clang",
+    "CROSS_COMPILE": "aosp-clang/clang-r450784d/bin/aarch64-linux-gnu-",
+    "CROSS_COMPILE_ARM32": "aosp-clang/clang-r450784d/bin/arm-linux-gnueabi-",
+    "CLANG_TRIPLE": "aarch64-linux-gnu-",
+    "AR": "aosp-clang/clang-r450784d/bin/llvm-ar",
+    "LD": "aosp-clang/clang-r450784d/bin/ld.lld",
+    "NM": "aosp-clang/clang-r450784d/bin/llvm-nm",
+    "OBJCOPY": "aosp-clang/clang-r450784d/bin/llvm-objcopy",
+    "OBJDUMP": "aosp-clang/clang-r450784d/bin/llvm-objdump",
+    "READELF": "aosp-clang/clang-r450784d/bin/llvm-readelf",
+    "STRIP": "aosp-clang/clang-r450784d/bin/llvm-strip",
+    
+    "LLVM": "1",
+    "LLVM_IAS": "1",
+    "KCFLAGS": "-mllvm -enable-machine-outliner -mllvm -import-instr-limit=5",
+    "LTO": "thin",
+    "LLVM_AR": "aosp-clang/clang-r450784d/bin/llvm-ar"
   }
-]
+}
