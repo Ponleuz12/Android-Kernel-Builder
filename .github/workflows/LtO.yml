@@ -1,4 +1,4 @@
-name: Kernel Build with ThinLTO (Stock Config)
+name: Kernel Build with ThinLTO
 
 on:
   workflow_dispatch:
@@ -8,8 +8,7 @@ on:
 env:
   KERNEL_DIR: "kernel"
   CLANG_DIR: "clang-6443078"
-  THINLTO_CACHE: "thinlto_cache"
-  DEFCONFIG: "stock_defconfig"  # Using stock config instead of vendor
+  DEFCONFIG: "stock_defconfig"  # Verify this matches your actual defconfig
 
 jobs:
   build:
@@ -38,19 +37,13 @@ jobs:
           build-essential flex bison libssl-dev libelf-dev \
           bc python3 git make gcc zip
 
-    - name: Setup environment
+    - name: Verify toolchain
       run: |
-        # Verify defconfig exists
-        cd ${{ env.KERNEL_DIR }}
-        if [ ! -f "arch/arm64/configs/${{ env.DEFCONFIG }}" ]; then
-          echo "::error::Defconfig ${{ env.DEFCONFIG }} not found!"
-          ls arch/arm64/configs/
-          exit 1
-        fi
-
-        # Set up paths
-        echo "CLANG_PATH=${{ github.workspace }}/${{ env.CLANG_DIR }}/bin" >> $GITHUB_ENV
-        echo "PATH=$CLANG_PATH:$PATH" >> $GITHUB_ENV
+        echo "=== Toolchain Verification ==="
+        ${{ github.workspace }}/${{ env.CLANG_DIR }}/bin/clang --version
+        ${{ github.workspace }}/${{ env.CLANG_DIR }}/bin/ld.lld --version
+        echo "=== Defconfig Exists ==="
+        ls ${{ github.workspace }}/${{ env.KERNEL_DIR }}/arch/arm64/configs/ | grep "${{ env.DEFCONFIG }}"
 
     - name: Build with ThinLTO
       run: |
@@ -60,19 +53,20 @@ jobs:
         export SUBARCH=arm64
         export LLVM=1
         export LLVM_IAS=1
+        export PATH="${{ github.workspace }}/${{ env.CLANG_DIR }}/bin:$PATH"
         export CLANG_TRIPLE=aarch64-linux-gnu-
         export CROSS_COMPILE=aarch64-linux-gnu-
         export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         
         # Clean previous builds
-        make O=out clean && rm -rf out
+        make O=out clean
         
-        # Enable ThinLTO
-        echo "CONFIG_LTO=y" >> arch/arm64/configs/${{ env.DEFCONFIG }}
+        # Configure ThinLTO (corrected flags)
         echo "CONFIG_LTO_CLANG=y" >> arch/arm64/configs/${{ env.DEFCONFIG }}
         echo "CONFIG_THINLTO=y" >> arch/arm64/configs/${{ env.DEFCONFIG }}
+        echo "CONFIG_LD_IS_LLD=y" >> arch/arm64/configs/${{ env.DEFCONFIG }}
         
-        # Build commands
+        # Build with corrected ThinLTO flags
         make O=out ${{ env.DEFCONFIG }}
         
         make -j$(nproc --all) O=out \
@@ -82,25 +76,27 @@ jobs:
           NM="llvm-nm" \
           STRIP="llvm-strip" \
           OBJCOPY="llvm-objcopy" \
-          KCFLAGS="-mthinlto" \
+          KCFLAGS="-flto=thin" \
+          LDFLAGS="--thinlto-cache-dir=${GITHUB_WORKSPACE}/thinlto_cache" \
           2>&1 | tee build.log
 
-    - name: Verify build
+    - name: Check build output
       run: |
         cd ${{ env.KERNEL_DIR }}
         if [ -f "out/arch/arm64/boot/Image.gz-dtb" ]; then
-          echo "::notice::Kernel built successfully!"
+          echo "::notice::Build successful!"
           ls -lh out/arch/arm64/boot/
         else
-          echo "::error::Build failed - no kernel image found"
-          grep -i error build.log || echo "No obvious errors in log"
+          echo "::error::Build failed"
+          grep -i "error:" build.log
           exit 1
         fi
 
     - name: Upload artifacts
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: kernel-thinlto-build
+        name: build-artifacts
         path: |
-          ${{ env.KERNEL_DIR }}/out/arch/arm64/boot/Image.gz-dtb
           ${{ env.KERNEL_DIR }}/build.log
+          ${{ env.KERNEL_DIR }}/out/.config
