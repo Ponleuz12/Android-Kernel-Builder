@@ -6,7 +6,7 @@ on:
       KERNEL_REPO:
         description: 'Kernel source repository URL'
         required: true
-        default: 'https://github.com/YourUsername/kernel_realme_sm4250'
+        default: 'https://github.com/Ponleuz12/kernel_realme_sm4250'
       KERNEL_BRANCH:
         description: 'Branch'
         required: true
