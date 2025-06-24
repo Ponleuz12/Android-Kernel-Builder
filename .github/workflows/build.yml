@@ -154,6 +154,8 @@ jobs:
           args: ${{ steps.generate-args.outputs.args }}
         run: |
           echo "PATH Variable: $PATH"
+          export KBUILD_BUILD_HOST=Ubuntu-Gitub
+          export KBUILD_BUILD_USER=UdyneOS-@Ponleuz714
           make ${{ env.args }} ${{ env.DEFCONFIG_NAME }}
 
       - name: "🎶 Build kernel"
