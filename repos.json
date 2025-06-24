@@ -1,5 +1,4 @@
-[
-  {
+[  {
     "kernelSource": {
       "name": "RMX2195-StarX-OC",
       "repo": "https://github.com/Ponleuz12/kernel_realme_sm4250",
@@ -7,9 +6,9 @@
       "device": "RMX2195"
     },
     "anykernelSource": {
-      "repo": "https://github.com/insetion/AnyKernel3",
-      "branch": "RMX2195",
-      "name": "AnyKernel3-X"
+        "repo": "https://github.com/insetion/AnyKernel3",
+        "branch": "RMX2195",
+        "name": "AnyKernel3-X"
     },
     "withKernelSU": false,
     "toolchains": [
@@ -26,25 +25,12 @@
     ],
     "params": {
       "ARCH": "arm64",
-      "SUBARCH": "arm64",
-      "CC": "clang",
-      "AR": "llvm-ar",
-      "NM": "llvm-nm",
-      "OBJCOPY": "llvm-objcopy",
-      "OBJDUMP": "llvm-objdump",
-      "STRIP": "llvm-strip",
-      "READELF": "llvm-readelf",
-      "LD": "ld.lld",
-      "HOSTLD": "ld.lld",
-      "HOSTCC": "clang",
-      "HOSTCXX": "clang++",
       "CROSS_COMPILE": "aarch64-linux-gnu-",
       "CROSS_COMPILE_ARM32": "arm-linux-gnueabi-",
-      "CLANG_TRIPLE": "aarch64-linux-gnu-",
       "CROSS_COMPILE_COMPAT": "arm-linux-gnueabi-",
-      "KBUILD_LTO": "thin",
-      "LLVM": "1",
-      "LLVM_IAS": "1"
+      "CLANG_TRIPLE": "aarch64-linux-gnu-",
+      "AR": "",
+      "CC": "clang"
     }
   }
 ]
