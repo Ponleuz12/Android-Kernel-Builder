@@ -1,79 +1,83 @@
-name: Build Kernel (LLVM ThinLTO)
+name: Kernel Build with LTO
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ stable ]
+  pull_request:
+    branches: [ stable ]
 
 jobs:
   build:
-    name: Build with LLVM ThinLTO
     runs-on: ubuntu-latest
-
-    env:
-      KERNEL_REPO: https://github.com/Ponleuz12/kernel_realme_sm4250
-      KERNEL_BRANCH: stable
-      DEFCONFIG: stock_defconfig
-      CLANG_URL: https://github.com/kdrag0n/proton-clang.git
-      CLANG_DIR: clang
-      ARCH: arm64
-      LLVM: 1
-      LTO: thin
-      LD: ld.lld
-      KBUILD_BUILD_USER: Ponleuz
-      KBUILD_BUILD_HOST: GitHub
+    timeout-minutes: 120
 
     steps:
-    - name: Checkout Kernel Source
-      uses: actions/checkout@v4
+    - name: Checkout kernel source
+      uses: actions/checkout@v3
       with:
         repository: Ponleuz12/kernel_realme_sm4250
         ref: stable
+        path: kernel
 
-    - name: Clone Proton Clang (LLVM)
-      run: |
-        git clone --depth=1 $CLANG_URL $CLANG_DIR
+    - name: Checkout Clang toolchain
+      uses: actions/checkout@v3
+      with:
+        repository: techyminati/android_prebuilts_clang_host_linux-x86_clang-6443078
+        ref: 11.0.1
+        path: clang
 
-    - name: Setup Environment Variables
+    - name: Set up environment
       run: |
-        echo "PATH=$GITHUB_WORKSPACE/$CLANG_DIR/bin:$PATH" >> $GITHUB_ENV
-        echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-        echo "CC=clang" >> $GITHUB_ENV
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          flex \
+          bison \
+          libssl-dev \
+          libelf-dev \
+          bc \
+          python3 \
+          git
 
-    - name: Make Defconfig
+    - name: Set up build environment
       run: |
-        make O=out ARCH=$ARCH $DEFCONFIG
+        export ARCH=arm64
+        export SUBARCH=arm64
+        export PATH=$(pwd)/clang/bin:$PATH
+        export CLANG_TRIPLE=aarch64-linux-gnu-
+        export CROSS_COMPILE=$(pwd)/clang/bin/aarch64-linux-gnu-
+        export CROSS_COMPILE_ARM32=$(pwd)/clang/bin/arm-linux-gnueabi-
+        
+        cd kernel
+        # Enable LTO in the kernel config
+        echo "CONFIG_LTO=y" >> arch/$ARCH/configs/vendor/${DEVICE}_defconfig
+        echo "CONFIG_LTO_CLANG=y" >> arch/$ARCH/configs/vendor/${DEVICE}_defconfig
+        echo "CONFIG_THINLTO=y" >> arch/$ARCH/configs/vendor/${DEVICE}_defconfig
 
-    - name: Enable ThinLTO in .config
+    - name: Build kernel
       run: |
-        sudo apt-get install -y bc libncurses-dev flex bison openssl libssl-dev
-        scripts/config --file out/.config \
-          -d LTO_NONE \
-          -e LTO \
-          -e LTO_CLANG \
-          -e THINLTO \
-          -e LD_LLD \
-          -e CC_HAS_THINLTO \
-          -e CLANG_LTO \
-          -e CLANG_LTO_THIN \
-          -e HAVE_LD_THINLTO \
-          -e CONFIG_UNWINDER_FRAME_POINTER
-        make O=out ARCH=$ARCH olddefconfig
-
-    - name: Build Kernel with ThinLTO
-      run: |
-        make -j$(nproc) O=out \
-          ARCH=$ARCH \
-          LLVM=$LLVM \
-          LLVM_IAS=1 \
-          LD=$LD \
+        cd kernel
+        make O=out vendor/${DEVICE}_defconfig
+        make -j$(nproc --all) O=out \
           CC=clang \
+          LD=ld.lld \
+          AR=llvm-ar \
+          NM=llvm-nm \
+          OBJCOPY=llvm-objcopy \
+          OBJDUMP=llvm-objdump \
+          STRIP=llvm-strip \
           CLANG_TRIPLE=aarch64-linux-gnu- \
           CROSS_COMPILE=aarch64-linux-gnu- \
-          CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+          CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+          LLVM=1 \
+          LLVM_IAS=1
+        
+        # Package the kernel image
+        cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
+        cd AnyKernel3 && zip -r9 kernel.zip * -x .gitignore README.md *placeholder
 
-    - name: Upload Kernel Image
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Kernel Image
-        path: |
-          out/arch/arm64/boot/Image
-          out/arch/arm64/boot/Image.gz￼Enter
+        name: kernel-lto-build
+        path: kernel/AnyKernel3/kernel.zip
