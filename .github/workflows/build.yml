@@ -101,8 +101,8 @@ jobs:
           CLANG_TRIPLE=$(echo $params | jq -r ".CLANG_TRIPLE")
           AR=$(echo $params | jq -r ".AR")
           CC=$(echo $params | jq -r ".CC")
-          LLVM=$(echo $params | jq -r ".LLVM")
           KBUILD_LTO=$(echo $params | jq -r ".KBUILD_LTO")
+          LLVM=$(echo $params | jq -r ".LLVM")
           LLVM_IAS(echo $params | jq -r ".LLVM_IAS")
           
           echo "ARCH=$ARCH" >> $GITHUB_ENV
@@ -130,11 +130,11 @@ jobs:
           if [ -n "$CC" ]; then
             args="$args CC=$CC"
           fi
-          if [ -n "$LLVM" ]; then
-          args="$args LLVM=$LLVM"
-          fi
           if [ -n "$KBUILD_LTO" ]; then
           args="$args KBUILD_LTO=$KBUILD_LTO"
+          fi
+          if [ -n "$LLVM" ]; then
+          args="$args LLVM=$LLVM"
           fi
           if [ -n "$LLVM_IAS" ]; then
           args="$args LLVM_IAS=$LLVM_IAS"
