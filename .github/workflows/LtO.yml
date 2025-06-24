@@ -1,131 +1,87 @@
-name: "Build Kernel with LTO"
-
-env:
-  CONFIGURATION: "repos.json"
-  OUT_DIR: "out"
+name: Build Kernel (LLVM ThinLTO)
 
 on:
   workflow_dispatch:
+    inputs:
+      KERNEL_REPO:
+        description: 'Kernel source repository URL'
+        required: true
+        default: 'https://github.com/YourUsername/kernel_realme_sm4250'
+      KERNEL_BRANCH:
+        description: 'Branch'
+        required: true
+        default: 'stable'
+      DEFCONFIG:
+        description: 'Defconfig file'
+        required: true
+        default: 'stock_defconfig'
 
 jobs:
-  Set-repos:
-    name: "🔍 Parse repos.json"
+  build:
     runs-on: ubuntu-latest
-    outputs:
-      repos: ${{ steps.generate-matrix.outputs.repos }}
-    steps:
-      - name: "📥 Checkout"
-        uses: actions/checkout@v4
 
-      - name: "🧠 Generate Matrix"
-        id: generate-matrix
-        run: |
-          echo "repos<<EOF" >> $GITHUB_OUTPUT
-          cat ${{ env.CONFIGURATION }} >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-  Build-Kernel:
-    name: "⚙️ Build Kernel"
-    runs-on: ubuntu-latest
-    needs: Set-repos
-    strategy:
-      fail-fast: false
-      matrix:
-        repos: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
     env:
-      kernelDir: ${{ matrix.repos.kernelSource.name }}_${{ matrix.repos.kernelSource.device }}
-      kernelName: ${{ matrix.repos.kernelSource.name }}
-      kernelRepo: ${{ matrix.repos.kernelSource.repo }}
-      kernelBranch: ${{ matrix.repos.kernelSource.branch }}
-      kernelDevice: ${{ matrix.repos.kernelSource.device }}
-      ANYKERNEL_NAME: ${{ matrix.repos.anykernelSource.name || 'AnyKernel3' }}
-      ANYKERNEL_SOURCE: ${{ matrix.repos.anykernelSource.repo }}
-      ANYKERNEL_SOURCE_BRANCH: ${{ matrix.repos.anykernelSource.branch }}
-      DEFCONFIG_NAME: stock_defconfig
-      withKernelSU: ${{ matrix.repos.withKernelSU }}
+      CLANG_URL: https://github.com/kdrag0n/proton-clang.git
+      CLANG_DIR: clang
+      ARCH: arm64
+      LLVM: 1
+      LTO: thin
+      LD: ld.lld
+      KBUILD_BUILD_USER: Ponleuz
+      KBUILD_BUILD_HOST: GitHub
+
     steps:
-      - name: "📁 Prepare workspace"
-        run: mkdir -p $kernelDir
+    - name: Checkout Kernel Source
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.event.inputs.KERNEL_REPO }}
+        ref: ${{ github.event.inputs.KERNEL_BRANCH }}
 
-      - name: "📦 Install dependencies"
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential bc git wget curl zip gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi \
-            libssl-dev lz4 lzop zstd device-tree-compiler libarchive-tools python3 \
-            clang lld llvm
+    - name: Clone Proton Clang (LLVM)
+      run: |
+        git clone --depth=1 $CLANG_URL $CLANG_DIR
 
-      - name: "🧬 Clone kernel source"
-        working-directory: ./${{ env.kernelDir }}
-        run: git clone --recursive --depth=1 -b $kernelBranch $kernelRepo $kernelName
+    - name: Set up environment
+      run: |
+        echo "PATH=$GITHUB_WORKSPACE/$CLANG_DIR/bin:$PATH" >> $GITHUB_ENV
+        echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
+        echo "CC=clang" >> $GITHUB_ENV
 
-      - name: "🔧 Setup build arguments"
-        id: build-args
-        working-directory: ./${{ env.kernelDir }}
-        env:
-          params: "${{ toJSON(matrix.repos.params) }}"
-        run: |
-          ARCH=$(echo $params | jq -r ".ARCH")
-          CROSS_COMPILE=$(echo $params | jq -r ".CROSS_COMPILE")
-          CROSS_COMPILE_ARM32=$(echo $params | jq -r ".CROSS_COMPILE_ARM32")
-          CLANG_TRIPLE=$(echo $params | jq -r ".CLANG_TRIPLE")
-          CC=$(echo $params | jq -r ".CC")
-          AR=$(echo $params | jq -r ".AR")
-          NM=$(echo $params | jq -r ".NM")
-          OBJCOPY=$(echo $params | jq -r ".OBJCOPY")
-          OBJDUMP=$(echo $params | jq -r ".OBJDUMP")
-          STRIP=$(echo $params | jq -r ".STRIP")
-          LD=$(echo $params | jq -r ".LD")
+    - name: Configure Kernel
+      run: |
+        make O=out ARCH=$ARCH ${DEFCONFIG}
 
-          echo "ARCH=$ARCH" >> $GITHUB_ENV
-          echo "CC=$CC" >> $GITHUB_ENV
+    - name: Enable ThinLTO in .config
+      run: |
+        scripts/config --file out/.config \
+          -d LTO_NONE \
+          -e LTO \
+          -e LTO_CLANG \
+          -e THINLTO \
+          -e LD_LLD \
+          -e CC_HAS_THINLTO \
+          -e CLANG_LTO \
+          -e CLANG_LTO_THIN \
+          -e HAVE_LD_THINLTO \
+          -e CONFIG_UNWINDER_FRAME_POINTER
+        make O=out ARCH=$ARCH olddefconfig
 
-          args="-j$(nproc)"
-          args="$args O=$(pwd)/${{ env.OUT_DIR }}"
-          args="$args ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32"
-          args="$args CLANG_TRIPLE=$CLANG_TRIPLE"
-          args="$args CC=$CC AR=$AR NM=$NM OBJCOPY=$OBJCOPY OBJDUMP=$OBJDUMP STRIP=$STRIP LD=$LD"
-          echo "args=$args" >> $GITHUB_OUTPUT
+    - name: Build Kernel with ThinLTO
+      run: |
+        make -j$(nproc --all) O=out \
+          ARCH=$ARCH \
+          LLVM=$LLVM \
+          LLVM_IAS=1 \
+          LD=$LD \
+          CC=clang \
+          CLANG_TRIPLE=aarch64-linux-gnu- \
+          CROSS_COMPILE=aarch64-linux-gnu- \
+          CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
-      - name: "🧩 Update KernelSU (optional)"
-        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
-        if: ${{ env.withKernelSU == 'true' }}
-        run: |
-          curl -LSs https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh | bash -s main
-          echo -e "\nCONFIG_KPROBES=y\nCONFIG_HAVE_KPROBES=y\nCONFIG_KPROBE_EVENTS=y" >> arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-
-      - name: "📘 Make defconfig"
-        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
-        env:
-          args: ${{ steps.build-args.outputs.args }}
-        run: |
-          make $args ${{ env.DEFCONFIG_NAME }}
-          grep -i LTO .config || echo "⚠️ LTO not found in .config"
-
-      - name: "🛠 Compile Kernel"
-        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
-        env:
-          args: ${{ steps.build-args.outputs.args }}
-        run: |
-          make $args CONFIG_DEBUG_SECTION_MISMATCH=y
-
-      - name: "📦 Package with AnyKernel3"
-        working-directory: ./${{ env.kernelDir }}
-        run: |
-          git clone --depth=1 -b $ANYKERNEL_SOURCE_BRANCH $ANYKERNEL_SOURCE $ANYKERNEL_NAME
-          rm -rf $ANYKERNEL_NAME/.git*
-
-          BOOT_DIR=${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot
-
-          for img in Image.gz-dtb Image.gz Image dtbo.img; do
-            [ -f "$BOOT_DIR/$img" ] && cp "$BOOT_DIR/$img" "$ANYKERNEL_NAME/$img"
-          done
-
-      - name: "⬆️ Upload kernel zip"
-        uses: actions/upload-artifact@v4
-        with:
-          name: kernel-${{ env.kernelDevice }}-${{ env.kernelName }}
-          path: ./${{ env.kernelDir }}/${{ env.ANYKERNEL_NAME }}
-
-      - name: "📏 Show Image.gz size"
-        run: |
-          ls -lh ./${{ env.kernelDir }}/${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/Image.gz || true
+    - name: Upload zImage or Image.gz
+      uses: actions/upload-artifact@v4
+      with:
+        name: Kernel Image
+        path: |
+          out/arch/arm64/boot/Image.gz
+          out/arch/arm64/boot/Image
