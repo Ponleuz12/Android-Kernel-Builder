@@ -157,15 +157,15 @@ jobs:
           make ${{ env.args }} ${{ env.DEFCONFIG_NAME }}
 
       - name: "🎶 Build kernel"
-        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
-        env:
-          args: ${{ steps.generate-args.outputs.args }}
-        run: |
-          echo "PATH Variable: $PATH"
-          export KBUILD_BUILD_HOST=Ubuntu-Gitub
-          export KBUILD_BUILD_USER=UdyneOS-@Ponleuz714
-          make ${args} CONFIG_DEBUG_SECTION_MISMATCH=y
-
+  working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
+  env:
+    args: ${{ steps.generate-args.outputs.args }}
+    KBUILD_BUILD_HOST: Ubuntu-Gitub
+    KBUILD_BUILD_USER: UdyneOS-@Ponleuz714
+    LOCALVERSION: -StarX-OC
+  run: |
+    echo "PATH Variable: $PATH"
+    make ${args} CONFIG_DEBUG_SECTION_MISMATCH=y
       - name: "📦 Package kernel with AnyKernel3"
         working-directory: ./${{ env.kernelDir }}
         run: |
