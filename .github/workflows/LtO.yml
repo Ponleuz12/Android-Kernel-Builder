@@ -2,25 +2,16 @@ name: Build Kernel (LLVM ThinLTO)
 
 on:
   workflow_dispatch:
-    inputs:
-      KERNEL_REPO:
-        description: 'Kernel source repository URL'
-        required: true
-        default: 'https://github.com/Ponleuz12/kernel_realme_sm4250'
-      KERNEL_BRANCH:
-        description: 'Branch'
-        required: true
-        default: 'stable'
-      DEFCONFIG:
-        description: 'Defconfig file'
-        required: true
-        default: 'stock_defconfig'
 
 jobs:
   build:
+    name: Build with LLVM ThinLTO
     runs-on: ubuntu-latest
 
     env:
+      KERNEL_REPO: https://github.com/Ponleuz12/kernel_realme_sm4250
+      KERNEL_BRANCH: stable
+      DEFCONFIG: stock_defconfig
       CLANG_URL: https://github.com/kdrag0n/proton-clang.git
       CLANG_DIR: clang
       ARCH: arm64
@@ -34,25 +25,26 @@ jobs:
     - name: Checkout Kernel Source
       uses: actions/checkout@v4
       with:
-        repository: ${{ github.event.inputs.KERNEL_REPO }}
-        ref: ${{ github.event.inputs.KERNEL_BRANCH }}
+        repository: Ponleuz12/kernel_realme_sm4250
+        ref: stable
 
     - name: Clone Proton Clang (LLVM)
       run: |
         git clone --depth=1 $CLANG_URL $CLANG_DIR
 
-    - name: Set up environment
+    - name: Setup Environment Variables
       run: |
         echo "PATH=$GITHUB_WORKSPACE/$CLANG_DIR/bin:$PATH" >> $GITHUB_ENV
         echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
         echo "CC=clang" >> $GITHUB_ENV
 
-    - name: Configure Kernel
+    - name: Make Defconfig
       run: |
-        make O=out ARCH=$ARCH ${DEFCONFIG}
+        make O=out ARCH=$ARCH $DEFCONFIG
 
     - name: Enable ThinLTO in .config
       run: |
+        sudo apt-get install -y bc libncurses-dev flex bison openssl libssl-dev
         scripts/config --file out/.config \
           -d LTO_NONE \
           -e LTO \
@@ -68,7 +60,7 @@ jobs:
 
     - name: Build Kernel with ThinLTO
       run: |
-        make -j$(nproc --all) O=out \
+        make -j$(nproc) O=out \
           ARCH=$ARCH \
           LLVM=$LLVM \
           LLVM_IAS=1 \
@@ -78,10 +70,10 @@ jobs:
           CROSS_COMPILE=aarch64-linux-gnu- \
           CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
-    - name: Upload zImage or Image.gz
+    - name: Upload Kernel Image
       uses: actions/upload-artifact@v4
       with:
         name: Kernel Image
         path: |
-          out/arch/arm64/boot/Image.gz
           out/arch/arm64/boot/Image
+          out/arch/arm64/boot/Image.gz￼Enter
