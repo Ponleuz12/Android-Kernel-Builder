@@ -13,7 +13,7 @@ jobs:
 
       - name: "📥 Clone Kernel Source"
         run: |
-          git clone --depth=1 --branch stable https://github.com/Ponleuz12/kernel_realme_sm4250.git
+          git clone --depth=1 --branch stable_proton https://github.com/Ponleuz12/kernel_realme_sm4250.git
 
       - name: "🧰 Install Dependencies"
         run: |
