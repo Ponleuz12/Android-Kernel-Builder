@@ -34,6 +34,7 @@ jobs:
         export SUBARCH=arm64
         export CLANG_PATH=$PWD/clang
         export PATH="$CLANG_PATH/bin:$PATH"
+        export LD=ld.lld
 
         make O=out ARCH=arm64 stock_defconfig
         make -j$(nproc) O=out \
