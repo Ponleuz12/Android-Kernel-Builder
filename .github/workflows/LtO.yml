@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build on Ubuntu
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: 📥 Checkout Kernel Source
@@ -40,6 +40,9 @@ jobs:
         make -j$(nproc) O=out \
           ARCH=arm64 \
           CC=clang \
+          LD=ld.bfd \
+          HOSTLD=ld \
+          HOSTCC=gcc \
           CLANG_TRIPLE=aarch64-linux-gnu- \
           CROSS_COMPILE=aarch64-linux-gnu- \
           CROSS_COMPILE_ARM32=arm-linux-gnueabi-
