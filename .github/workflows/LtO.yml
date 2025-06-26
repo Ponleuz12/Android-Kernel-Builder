@@ -53,5 +53,5 @@ jobs:
     - name: 📦 Upload Kernel Image
       uses: actions/upload-artifact@v4
       with:
-        name: Image.gz-dtb
-        path: out/arch/arm64/boot/Image.gz-dtb
+        name: Image.gz
+        path: out/arch/arm64/boot/Image.gz
