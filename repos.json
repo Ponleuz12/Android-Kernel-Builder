@@ -18,8 +18,8 @@
         "name": "gas"
       },
       {
-        "repo": "https://github.com/droidian/android-platform-prebuilts-clang-host-linux-x86-33",
-        "branch": "droidian",
+        "repo": "https://github.com/techyminati/android_prebuilts_clang_host_linux-x86_clang-6443078",
+        "branch": "11.0.1",
         "name": "clang"
       }
     ],
@@ -30,7 +30,10 @@
       "CROSS_COMPILE_COMPAT": "arm-linux-gnueabi-",
       "CLANG_TRIPLE": "aarch64-linux-gnu-",
       "AR": "",
-      "CC": "clang"
+      "CC": "clang",
+      "LD": "ld.lld",
+      "LLVM": "1"
+       
     }
   }
 ]
