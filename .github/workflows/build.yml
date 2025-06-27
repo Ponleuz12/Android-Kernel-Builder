@@ -104,7 +104,7 @@ jobs:
           LD=$(echo $params | jq -r ".LD")
           LLVM=$(echo $params | jq -r ".LLVM")
           LLVM_IAS=$(echo $params | jq -r ".LLVM_IAS")
-          MAKE_JOB=$(echo $params | jq -r ".MAKE_JOB")
+          MAKE_JOBS=$(echo $params | jq -r ".MAKE_JOBS")
           
           echo "ARCH=$ARCH" >> $GITHUB_ENV
 
@@ -140,8 +140,8 @@ jobs:
           if [ -n "$LLVM_IAS" ]; then
             args="$args LLVM_IAS=$LLVM_IAS"
           fi
-          if [ -n "$MAKE_JOB" ]; then
-            args="$args MAKE_JOB=$MAKE_JOB"
+          if [ -n "$MAKE_JOBS" ]; then
+            args="$args MAKE_JOBS=$MAKE_JOBS"
           fi
           
           echo "args=$args" >> $GITHUB_OUTPUT
