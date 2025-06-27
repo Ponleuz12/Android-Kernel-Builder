@@ -101,7 +101,9 @@ jobs:
           CLANG_TRIPLE=$(echo $params | jq -r ".CLANG_TRIPLE")
           AR=$(echo $params | jq -r ".AR")
           CC=$(echo $params | jq -r ".CC")
-
+          LD=$(echo $params | jq -r ".LD")
+          LLVM=$(echo $params | jq -r ".LLVM")
+          
           echo "ARCH=$ARCH" >> $GITHUB_ENV
 
           args="-j$(nproc --all)"
@@ -127,6 +129,13 @@ jobs:
           if [ -n "$CC" ]; then
             args="$args CC=$CC"
           fi
+          if [ -n "$LD" ]; then
+            args="$args LD=$LD"
+          fi
+          if [ -n "$LLVM" ]; then
+            args="$args LLVM=$LLVM"
+          fi
+          
           echo "args=$args" >> $GITHUB_OUTPUT
 
       - name: "😋 Update KernelSU"
