@@ -31,10 +31,10 @@
       "CLANG_TRIPLE": "aarch64-linux-gnu-",
       "AR": "",
       "CC": "clang",
-      "LD": "ld.lld",
-      "LLVM": "1",
-      "LLVM_IAS": "1",
-      "MAKE_JOBS": "2"
+      "LD": "",
+      "LLVM": "",
+      "LLVM_IAS": "",
+      "MAKE_JOBS": ""
     }
   }
 ]
