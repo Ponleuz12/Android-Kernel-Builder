@@ -1,7 +1,7 @@
 [  {
     "kernelSource": {
       "name": "RMX2195-StarX-OC",
-      "repo": "https://github.com/Ponleuz12/kernel_realme_RMX2195/tree/lineage-18.1",
+      "repo": "https://github.com/Ponleuz12/kernel_realme_RMX2195",
       "branch": "lineage-18.1",
       "device": "RMX2195"
     },
